@@ -10,28 +10,53 @@ namespace TP_BattleShips_Server
 {
     class MatchMakingServeur
     {
-        public List< GameInstance> GameInstances = new List<GameInstance>();
+        public static List< GameInstance> GameInstances = new List<GameInstance>();
+
+        public bool Stop{get;set;}
         public void ListenServeur()
         {
+            Stop = false;
             //TcpListener serverSocket = new TcpListener(8888);
-            TcpListener serverSocket = new TcpListener(IPAddress.Any,1521);
+            TcpListener serverSocket = new TcpListener(IPAddress.Any, 8080);
+            try
+            {
 
-            TcpClient clientSocket = default(TcpClient);
+                serverSocket.Server.ReceiveTimeout = 500;
+                serverSocket.Start();
+            }
+            catch (Exception e)
+            {
+                
+                Console.WriteLine(e.Message);
+            }
             
 
-            serverSocket.Start();
-            while(true)
-            {
-                Console.WriteLine("Début");
-                clientSocket = serverSocket.AcceptTcpClient();
+            //TcpClient clientSocket = default(TcpClient);
 
-                Console.WriteLine(" >> " + "Nouvelle connection de " + clientSocket.Client.AddressFamily.ToString() + " started!");
-                if (CheckExistingInstances(clientSocket))
+
+            Console.WriteLine("Début");
+            while (!Stop)
+            {
+                
+                if (serverSocket.Pending())
                 {
-                    GameInstances.Add(new GameInstance(clientSocket));
+                    TcpClient clientSocket = serverSocket.AcceptTcpClient();
+
+                    Console.WriteLine(" >> " + "Nouvelle connection de " + IPAddress.Parse(((IPEndPoint)clientSocket.Client.RemoteEndPoint).Address.ToString()) + " started!");
+                    if (CheckExistingInstances(clientSocket))
+                    {
+                        GameInstances.Add(new GameInstance(clientSocket));
+                    }
                 }
+                cleanInstances();
+                    
+                
+
+                
                 
             }
+            Console.WriteLine("Fin");
+            serverSocket.Stop();
         }
 
         private bool CheckExistingInstances(TcpClient client)
@@ -46,6 +71,39 @@ namespace TP_BattleShips_Server
                 }
             }
             return true;
+        }
+
+        private void cleanInstances()
+        {
+            List<GameInstance> Rip = new List<GameInstance>();
+            foreach (GameInstance instance in GameInstances)
+            {
+                if (!ConnUtility.TestClient(instance.Joueur2) && !ConnUtility.TestClient(instance.Joueur1))
+                    Rip.Add(instance);
+
+                /*if ((instance.Joueur1 == null || !instance.Joueur1.Connected) && (instance.Joueur2 == null || !instance.Joueur2.Connected))
+                {
+                    
+                        GameInstances.Remove(instance);
+                }
+                else if(instance.Joueur1 != null && instance.Joueur2 != null)
+                    if (!testconn(instance.Joueur2) && !testconn(instance.Joueur1))
+                        GameInstances.Remove(instance);*/
+
+            }
+
+            foreach (GameInstance instance in Rip)
+            {
+                GameInstances.Remove(instance);
+            }
+        }
+
+        
+
+        private void deleteInstance(GameInstance instance)
+        {
+            instance.StopGameInstance();
+            GameInstances.Remove(instance);
         }
     }
 }

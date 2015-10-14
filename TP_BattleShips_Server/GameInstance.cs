@@ -12,8 +12,8 @@ namespace TP_BattleShips_Server
     {
         public bool IsWaitingForPlayer;
 
-        TcpClient Joueur1;
-        TcpClient Joueur2;
+        public TcpClient Joueur1{get;private set;}
+        public TcpClient Joueur2{get;private set;}
         Thread jeu;
 
         public GameInstance(TcpClient client)
@@ -36,12 +36,29 @@ namespace TP_BattleShips_Server
             }
         }
 
+        public void StopGameInstance()
+        {
+            try
+            {
+                jeu.Abort();
+            }
+            catch (Exception)
+            {
+
+                
+            }
+        }
+
         private void StartGame()
         {
             /*recevoir tableau*/
 
             /*partir boucle Joueur1*/
-            jeu.Abort();
+            //jeu.Abort();
+            while (true)
+            {
+                Thread.Sleep(500);
+            }
 
         }
 
