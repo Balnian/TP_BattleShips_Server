@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,6 +21,11 @@ namespace TP_BattleShips_Server
             catch (SocketException) { return false; }
 
 
+        }
+
+        public static String GetIP(TcpClient conn)
+        {
+            return IPAddress.Parse(((IPEndPoint)conn.Client.RemoteEndPoint).Address.ToString()).ToString();
         }
     }
 }

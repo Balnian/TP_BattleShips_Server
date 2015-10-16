@@ -23,13 +23,15 @@ namespace TP_BattleShips_Server
     {
         MatchMakingServeur serv;
         Thread Serveur;
+        Mutex LockRessource;
+
        // ServerState State = ServerState.Arreter;
         public Form1()
         {
             InitializeComponent();
             AllocConsole();
-
-            serv = new MatchMakingServeur();
+            LockRessource = new Mutex();
+            serv = new MatchMakingServeur(LockRessource);
             Serveur = new Thread(serv.ListenServeur);
             timer1.Start();
         }
@@ -104,7 +106,8 @@ namespace TP_BattleShips_Server
         {
             int compteurJoueur = 0;
             int compteurNode = 0;
-            
+
+            LockRessource.WaitOne();
             foreach (GameInstance Instance in MatchMakingServeur.GameInstances)
             {
                 if (Instance.Joueur1 != null)
@@ -125,15 +128,15 @@ namespace TP_BattleShips_Server
 
             if (compteurJoueur != compteurNode)
             {
-                for (int i = 0; i < TV_GameInstancesView.Nodes.Count; i++)
-                {
-                    TV_GameInstancesView.Nodes.RemoveAt(0);
-                }
-                foreach (TreeNode node in TV_GameInstancesView.Nodes)
+
+                
+                TV_GameInstancesView.Nodes.Clear();
+                
+                /*foreach (TreeNode node in TV_GameInstancesView.Nodes)
                 {
                     node.Remove();
                 }
-
+                */
                 for (int i = 0; i < MatchMakingServeur.GameInstances.Count; i++)
                 {
                     TreeNode currNode = TV_GameInstancesView.Nodes.Add("Instance" + i.ToString(),"Instance" + i.ToString(), "Instance");
@@ -151,6 +154,7 @@ namespace TP_BattleShips_Server
                     
                 }
             }
+            LockRessource.ReleaseMutex();
         }
 
 

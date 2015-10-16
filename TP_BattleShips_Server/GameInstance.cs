@@ -24,14 +24,16 @@ namespace TP_BattleShips_Server
 
         public void AjoutJoueur(TcpClient client)
         {
-            if(Joueur1.Connected)
+            if(ConnUtility.TestClient(Joueur1))
             {
+
                 Joueur2 = client;
                 IsWaitingForPlayer = false;
                 jeu = new Thread(StartGame);
             }
             else
             {
+                LogConsole.LogWithTime("La connection à " + ConnUtility.GetIP(Joueur1) + " à été terminer");
                 Joueur1 = client;
             }
         }
@@ -58,7 +60,10 @@ namespace TP_BattleShips_Server
             while (true)
             {
                 Thread.Sleep(500);
+
             }
+
+            MatchMakingServeur.GameInstances.Remove(this);
 
         }
 
