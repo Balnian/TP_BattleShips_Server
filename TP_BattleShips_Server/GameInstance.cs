@@ -1,4 +1,6 @@
-﻿using System;
+﻿using BattleShipPackets;
+//using BattleShipPackets;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
@@ -57,17 +59,36 @@ namespace TP_BattleShips_Server
         {
             NetworkStream StreamJ1 = Joueur1.GetStream();
             NetworkStream StreamJ2 = Joueur2.GetStream();
-            LogConsole.Log("envoie de Allo");
-            try
-            {
-                ConnUtility.SerializeAndSend(StreamJ1, "alloJ1");
-                ConnUtility.SerializeAndSend(StreamJ2, "alloJ2");
-            }
-            catch (Exception e)
-            {
 
-                LogConsole.Log(e.Message);
-            }
+            PosShips GrilleJ1;
+            PosShips GrilleJ2;
+
+
+            LogConsole.Log("Début Partie");
+           
+            ConnUtility.SerializeAndSend(StreamJ1, "Start");
+            ConnUtility.SerializeAndSend(StreamJ2, "Start");
+
+            StreamJ1.ReadTimeout = StreamJ2.ReadTimeout=60000;
+            try 
+	        {
+                LogConsole.Log("Lecture 1 ");
+                GrilleJ1 = (PosShips) ConnUtility.ReadAndDeserialize(StreamJ1);
+                LogConsole.Log("Lecture 2 ");
+                GrilleJ2 = (PosShips) ConnUtility.ReadAndDeserialize(StreamJ2);
+                LogConsole.Log("Tentative Lecture");
+                LogConsole.Log(GrilleJ1.PPorteAvion.ToString());
+                LogConsole.Log(GrilleJ2.PPorteAvion.ToString());
+	        }
+	        catch (Exception e)
+	        {
+		
+		        LogConsole.Log("Erreur réception grille Erreur: " + e.Message);
+	        }
+            
+
+
+            
             
             
             /*recevoir tableau*/

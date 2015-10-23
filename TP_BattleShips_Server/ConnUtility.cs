@@ -42,7 +42,18 @@ namespace TP_BattleShips_Server
         public static object ReadAndDeserialize(NetworkStream ns)
         {
             IFormatter formatter = new BinaryFormatter();
-            return formatter.Deserialize(ns);
+            try
+            {
+                return formatter.Deserialize(ns);
+            }
+            catch (Exception e)
+            {
+                
+                LogConsole.Log(e.Message);
+                
+            }
+            return null;
+            
         }
 
         
