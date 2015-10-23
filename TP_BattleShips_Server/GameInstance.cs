@@ -30,6 +30,7 @@ namespace TP_BattleShips_Server
                 Joueur2 = client;
                 IsWaitingForPlayer = false;
                 jeu = new Thread(StartGame);
+                jeu.Start();
             }
             else
             {
@@ -51,8 +52,24 @@ namespace TP_BattleShips_Server
             }
         }
 
+
         private void StartGame()
         {
+            NetworkStream StreamJ1 = Joueur1.GetStream();
+            NetworkStream StreamJ2 = Joueur2.GetStream();
+            LogConsole.Log("envoie de Allo");
+            try
+            {
+                ConnUtility.SerializeAndSend(StreamJ1, "alloJ1");
+                ConnUtility.SerializeAndSend(StreamJ2, "alloJ2");
+            }
+            catch (Exception e)
+            {
+
+                LogConsole.Log(e.Message);
+            }
+            
+            
             /*recevoir tableau*/
 
             /*partir boucle Joueur1*/
